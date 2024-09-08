@@ -10,7 +10,11 @@ const registerUser = async (user: FormData): Promise<ApiResponse<UserType>> => {
   return http.post("/register", user).then((res) => res.data);
 };
 
-const loginUser = async (user: UserType): Promise<ApiResponse<UserType>> => {
+const loginUser = async (
+  user: UserType
+): Promise<
+  ApiResponse<{ user: UserType; accessToken: string; refreshToken: string }>
+> => {
   return http.post("/users/login", user).then((res) => res.data);
 };
 

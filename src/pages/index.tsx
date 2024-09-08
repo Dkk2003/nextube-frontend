@@ -1,6 +1,7 @@
 import UserAPI from "@/axios/user";
 import Logo from "../components/Logo";
 import { useEffect } from "react";
+import { authanticatedRoute, unauthanticatedRoute } from "@/utils/authguard";
 
 const Home = () => {
   useEffect(() => {
@@ -8,7 +9,7 @@ const Home = () => {
       email: "darshan1010prajapati@gmail.com",
       password: "Test@123",
     }).then((res) => {
-      console.log(res);
+      console.log(res.data);
     });
   }, []);
 
