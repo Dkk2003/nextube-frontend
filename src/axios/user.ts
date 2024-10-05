@@ -18,10 +18,15 @@ const loginUser = async (
   return http.post("/users/login", user).then((res) => res.data);
 };
 
+const logOut = async (): Promise<ApiResponse<{}>> => {
+  return http.post("/users/logout", {}).then((res) => res.data);
+};
+
 const UserAPI = {
   authMe,
   registerUser,
   loginUser,
+  logOut,
 };
 
 export default UserAPI;
