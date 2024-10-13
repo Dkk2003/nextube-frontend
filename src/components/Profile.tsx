@@ -5,10 +5,10 @@ import Spinner from "./Spinner";
 const Profile = () => {
   const { user, userLoading } = useUser();
   return (
-    <div className="relative w-8 h-8 rounded-full cursor-pointer">
+    <div className="relative min-w-8 min-h-8 max-w-8 max-h-8 rounded-full cursor-pointer">
       <Image
         alt="Profile Image"
-        className="rounded-full w-8 h-8 object-cover"
+        className="rounded-full min-w-8 min-h-8 max-w-8 max-h-8 object-cover"
         src={user?.avatar ? user?.avatar : "/images/dummyProfileImage.webp"}
         height={1000}
         width={1000}

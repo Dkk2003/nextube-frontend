@@ -7,7 +7,7 @@ type IMainProps = {
 };
 
 const Main = (props: IMainProps) => (
-  <div className="font-roboto page-break w-full text-gray-700 antialiased overflow-hidden">
+  <div className="font-roboto page-break w-full antialiased overflow-hidden">
     {props.meta}
 
     <div className="mx-auto w-full">
