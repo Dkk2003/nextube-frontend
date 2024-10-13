@@ -1,8 +1,14 @@
 import UserAPI from "@/axios/user";
-import Logo from "../components/Logo";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { useUser } from "@/contexts/auth";
+import { Meta } from "@/layouts/Meta";
+import Footer from "@/layouts/Footer";
+import Header from "@/layouts/Header";
+import Logo from "@/components/Logo";
+import Profile from "@/components/Profile";
+import { Main } from "@/templates/Main";
+
 const Home = () => {
   const { user } = useUser();
   useEffect(() => {
@@ -15,12 +21,11 @@ const Home = () => {
     });
   }, []);
 
+  console.log(user);
   return (
-    <div className="w-full h-screen flex flex-col gap-3 justify-center items-center">
-      <Logo />
-      {user?.fullName}
-      <p className="text-lg">Coming Soon</p>
-    </div>
+    <Main meta={<Meta title="Home - Nextube" description="Home - Nextube" />}>
+      <div className="font-Inter w-full h-full text-white"></div>
+    </Main>
   );
 };
 

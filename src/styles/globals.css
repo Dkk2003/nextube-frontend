@@ -6,3 +6,7 @@
 body {
   @apply !bg-primaryBg text-fontPrimary font-Inter;
 }
+
+.skeleton-animation {
+  @apply bg-skeletonLoader animate-shimmer bg-shimmer bg-[length:200%_100%];
+}
