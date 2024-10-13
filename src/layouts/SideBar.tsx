@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import Header from "./Header";
 
 interface SideBarProps {
@@ -6,9 +6,11 @@ interface SideBarProps {
 }
 
 const SideBar = ({ childrens }: SideBarProps) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  console.log("hamburger", isOpen);
   return (
     <div className="w-full">
-      <Header />
+      <Header setIsOpen={setIsOpen} />
     </div>
   );
 };
