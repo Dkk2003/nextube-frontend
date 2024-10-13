@@ -1,11 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./src/**/*.*"],
   theme: {
     extend: {
       colors: {
@@ -16,6 +12,8 @@ const config: Config = {
         fontPrimary: "#EAEAEA", // Primary Font Color
         fontSecondary: "#B3B3B3", // Secondary Font Color
         fontMuted: "#888888", // Muted Font Color
+
+        skeletonLoader: "#4A4A4A",
 
         // Primary Accent Color
         primaryAccent: "#E43E3E", // Primary Accent (Logo Red)
@@ -33,6 +31,24 @@ const config: Config = {
         // Error and Success Colors
         errorColor: "#CC3B3B", // Muted Red for errors
         successColor: "#5B825F", // Muted Green for success
+
+        // Border Colors
+        dark: {
+          50: "#4D4D4D",
+        },
+      },
+      keyframes: {
+        shimmer: {
+          "0%": { backgroundPosition: "100% 0" },
+          "100%": { backgroundPosition: "-100% 0" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 2s infinite linear",
+      },
+      backgroundImage: {
+        shimmer:
+          "linear-gradient(130deg, #4A4A4A 25%, rgba(0, 0, 0, 0.1) 50%, #4A4A4A 75%)",
       },
       fontFamily: {
         Inter: ["Inter", "sans-serif"],
