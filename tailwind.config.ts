@@ -12,8 +12,11 @@ const config: Config = {
         fontPrimary: "#EAEAEA", // Primary Font Color
         fontSecondary: "#B3B3B3", // Secondary Font Color
         fontMuted: "#888888", // Muted Font Color
-
         skeletonLoader: "#4A4A4A",
+
+        // Logo Color
+        logoRed: "#E43E3E",
+        logoGrey: "#434D56",
 
         // Primary Accent Color
         primaryAccent: "#E43E3E", // Primary Accent (Logo Red)
