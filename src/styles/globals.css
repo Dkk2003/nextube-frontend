@@ -7,6 +7,10 @@ body {
   @apply !bg-primaryBg text-fontPrimary font-Inter;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 .skeleton-animation {
   @apply bg-skeletonLoader animate-shimmer bg-shimmer bg-[length:200%_100%];
 }
