@@ -3,6 +3,8 @@ import Header from "./Header";
 import HomeIcon from "@/components/icons/HomeIcon";
 import Link from "next/link";
 import LikedIcon from "@/components/icons/LikedIcon";
+import HistoryIcon from "@/components/icons/HistoryIcon";
+import { useRouter } from "next/router";
 
 interface SideBarProps {
   childrens: ReactNode;
@@ -21,14 +23,21 @@ const SIDE_MENUES: {
     path: "/",
   },
   {
-    id: 1,
+    id: 2,
     name: "Liked Videos",
     icon: <LikedIcon />,
     path: "/likedvideo",
   },
+  {
+    id: 3,
+    name: "History",
+    icon: <HistoryIcon />,
+    path: "/history",
+  },
 ];
 
 const SideBar = ({ childrens }: SideBarProps) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
