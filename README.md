@@ -1,4 +1,4 @@
-![Logo](https://res.cloudinary.com/dpsvuc30e/image/upload/v1725303214/vg8ymyxix5etjnn4ciad.png)
+![Logo](https://res.cloudinary.com/dpsvuc30e/image/upload/v1730957233/z9gfkgewrjw9dj13xa7o.ico)
 
 # Nextube
 
