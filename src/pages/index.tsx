@@ -8,8 +8,20 @@ import Header from "@/layouts/Header";
 import Logo from "@/components/Logo";
 import Profile from "@/components/Profile";
 import { Main } from "@/templates/Main";
+import nookies from "nookies";
+import { GetServerSideProps } from "next";
 
-const Home = () => {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const sidebarState = nookies.get(ctx)?.sidebarState === "true";
+
+  return {
+    props: {
+      initialSidebarState: sidebarState, // Pass the state as a prop
+    },
+  };
+};
+
+const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
   const { user } = useUser();
   useEffect(() => {
     UserAPI.loginUser({
@@ -23,7 +35,10 @@ const Home = () => {
 
   console.log(user);
   return (
-    <Main meta={<Meta title="Home - Nextube" description="Home - Nextube" />}>
+    <Main
+      initialSidebar={initialSidebarState}
+      meta={<Meta title="Home - Nextube" description="Home - Nextube" />}
+    >
       <div className="font-Inter w-full h-full text-white"></div>
     </Main>
   );

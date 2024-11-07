@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 type IMainProps = {
   meta: ReactNode;
   children: ReactNode;
+  initialSidebar: boolean;
 };
 
 const Main = (props: IMainProps) => (
@@ -11,7 +12,10 @@ const Main = (props: IMainProps) => (
     {props.meta}
 
     <div className="mx-auto w-full">
-      <SideBar childrens={props.children} />
+      <SideBar
+        initialSidebar={props?.initialSidebar}
+        childrens={props.children}
+      />
     </div>
   </div>
 );
