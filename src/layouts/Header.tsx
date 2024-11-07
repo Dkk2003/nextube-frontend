@@ -4,17 +4,20 @@ import Logo from "@/components/Logo";
 import Profile from "@/components/Profile";
 import SearchBar from "@/components/SearchBar";
 import { Dispatch, SetStateAction, useState } from "react";
+import Cookies from "js-cookie";
 
 const Header = ({
   setIsOpen,
 }: {
   setIsOpen?: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-
   const handleClick = () => {
     if (setIsOpen) {
-      setIsOpen((prev) => !prev);
+      setIsOpen((prev) => {
+        const newState = !prev;
+        Cookies.set("sidebarState", JSON.stringify(newState));
+        return newState;
+      });
     }
   };
 
