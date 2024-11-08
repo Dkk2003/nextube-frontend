@@ -116,7 +116,7 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
         </div>
 
         <div>
-          <Video />
+          <Video duration={393} />
         </div>
       </div>
     </Main>
