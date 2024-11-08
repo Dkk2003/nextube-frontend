@@ -14,3 +14,7 @@ body {
 .skeleton-animation {
   @apply bg-skeletonLoader animate-shimmer bg-shimmer bg-[length:200%_100%];
 }
+
+.shadow {
+  background: linear-gradient(to left, #0f0f0f 20%, rgba(33, 33, 33, 0) 80%);
+}
