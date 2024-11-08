@@ -68,7 +68,7 @@ const SideBar = ({ childrens, initialSidebar }: SideBarProps) => {
         <div
           className={`${
             isOpen ? "min-w-16 max-w-52 rounded-r-lg" : "min-w-16 max-w-16"
-          } hidden md:flex flex-col gap-1 w-full bg-neutralLight/20 transition-all duration-300 h-full p-2 fixed`}
+          } hidden md:flex flex-col gap-1 w-full bg-neutralLight/20 transition-all duration-300 h-full p-2`}
         >
           {SIDE_MENUES &&
             SIDE_MENUES?.length &&
@@ -96,7 +96,7 @@ const SideBar = ({ childrens, initialSidebar }: SideBarProps) => {
         <div
           className={`${
             isOpen ? "translate-x-0 rounded-r-lg" : "-translate-x-full"
-          } absolute max-w-52 top-[64.8px] flex flex-col gap-1 md:hidden w-full transition-all duration-300 h-full bg-neutralLight/20 border-dark-50 p-2`}
+          } absolute max-w-52 top-[64.8px] flex flex-col z-[100] gap-1 md:hidden w-full transition-all duration-300 h-full bg-neutralLight border-dark-50 p-2`}
         >
           {SIDE_MENUES &&
             SIDE_MENUES?.length &&
@@ -118,7 +118,7 @@ const SideBar = ({ childrens, initialSidebar }: SideBarProps) => {
             })}
         </div>
 
-        <div className="w-full h-full overflow-y-auto">{childrens}</div>
+        <div className="w-full h-full overflow-y-auto p-5">{childrens}</div>
       </div>
     </div>
   );
