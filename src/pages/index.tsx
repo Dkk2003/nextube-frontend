@@ -3,14 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import { useUser } from "@/contexts/auth";
 import { Meta } from "@/layouts/Meta";
-import Footer from "@/layouts/Footer";
-import Header from "@/layouts/Header";
-import Logo from "@/components/Logo";
-import Profile from "@/components/Profile";
 import { Main } from "@/templates/Main";
 import nookies from "nookies";
 import { GetServerSideProps } from "next";
 import Video from "@/components/Video";
+import VideoType from "@/types/VideoType";
+import VideoAPI from "@/axios/video";
+import { CATAGORIES } from "@/utils/constants";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const sidebarState = nookies.get(ctx)?.sidebarState === "true";
@@ -22,35 +21,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   };
 };
 
-const CATAGORIES = [
-  { id: 1, name: "All" },
-  { id: 2, name: "Music" },
-  { id: 3, name: "Live" },
-  { id: 4, name: "Bollywood" },
-  { id: 5, name: "Gadgets" },
-  { id: 6, name: "All" },
-  { id: 7, name: "Music" },
-  { id: 8, name: "Live" },
-  { id: 9, name: "Bollywood" },
-  { id: 10, name: "Gadgets" },
-  { id: 11, name: "All" },
-  { id: 12, name: "Music" },
-  { id: 13, name: "Live" },
-  { id: 14, name: "Bollywood" },
-  { id: 15, name: "Gadgets" },
-  { id: 16, name: "All" },
-  { id: 17, name: "Music" },
-  { id: 18, name: "Live" },
-  { id: 19, name: "Bollywood" },
-  { id: 20, name: "Gadgets" },
-];
-
 const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
   const { user } = useUser();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(true);
+  const sideBarIsOpen = Cookies.get("sidebarState") === "true";
+
+  const [videos, setVideos] = useState<VideoType[] | null>(null);
 
   const handleScroll = () => {
     if (!containerRef.current) return;
@@ -77,6 +56,13 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
     }).then((res) => {
       console.log(res.data);
       Cookies.set("accessToken", res?.data?.accessToken as string);
+    });
+  }, []);
+
+  useEffect(() => {
+    VideoAPI.getVideos().then((res) => {
+      console.log("video", res.data?.docs);
+      setVideos(res?.data?.docs as VideoType[]);
     });
   }, []);
 
@@ -115,8 +101,23 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
           </div>
         </div>
 
-        <div>
-          <Video duration={393} />
+        <div
+          className={`grid ${
+            sideBarIsOpen ? "grid-cols-3" : "grid-cols-4"
+          } gap-3`}
+        >
+          {videos &&
+            videos?.length &&
+            videos?.map((video) => {
+              return (
+                <Video
+                  key={video?._id}
+                  video={video}
+                  id={video?._id}
+                  duration={video?.duration}
+                />
+              );
+            })}
         </div>
       </div>
     </Main>

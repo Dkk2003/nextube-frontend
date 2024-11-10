@@ -9,7 +9,7 @@ interface VideoType {
   duration: number;
   views: number;
   isPublished: boolean;
-  owner: UserType["_id"];
+  owner: UserType;
   createdAt?: Date;
   updatedAt?: Date;
   __v?: number;
