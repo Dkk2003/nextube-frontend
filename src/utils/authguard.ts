@@ -3,12 +3,23 @@ import nookies from "nookies";
 
 const unauthanticatedRoute: GetServerSideProps = async (ctx) => {
   const accessToken = nookies.get(ctx)?.accessToken;
-  return fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/current-user`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  }).then(async (res) => {
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/current-user`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    // Check if the response is okay
+    if (!res.ok) {
+      console.error('Failed to fetch user data:', res.status, await res.text()); // Log the error response
+      return {
+        props: {},
+      };
+    }
+
     const user = await res.json();
 
     if (user && user?._id) {
@@ -19,10 +30,20 @@ const unauthanticatedRoute: GetServerSideProps = async (ctx) => {
         },
       };
     }
+
     return {
       props: {},
     };
-  });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return {
+      props: {},
+      redirect: {
+          permanent: false,
+          destination: "/",
+        },
+    };
+  }
 };
 
 const authanticatedRoute: GetServerSideProps = async (ctx) => {
