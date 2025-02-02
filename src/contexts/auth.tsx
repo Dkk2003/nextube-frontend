@@ -16,7 +16,7 @@ interface AuthContextProps {
   user: UserType | null;
   userLoading: boolean;
   isLogoutLoading: boolean;
-  isAuthanticated: boolean;
+  isAuthenticated: boolean;
   getUser: () => void;
   logOut: () => void;
 }
@@ -25,9 +25,9 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserType | null>(null);
-  const [userLoading, setUserLoading] = useState<boolean>(true);
+  const [userLoading, setUserLoading] = useState<boolean>(false);
   const [isLogoutLoading, setIsLogoutLoading] = useState<boolean>(true);
-  const [isAuthanticated, setIsAuthanticated] = useState<boolean>(false);
+  const [isAuthenticated, setisAuthenticated] = useState<boolean>(false);
   const accessToken = Cookies?.get("accessToken");
 
   const getUser = async () => {
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .then((res) => {
         if (res?.data) {
           setUser(res?.data);
-          setIsAuthanticated(true);
+          setisAuthenticated(true);
         }
       })
       .finally(() => {
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .then((res) => {
         if (res?.statusCode === 200) {
           setUser(null);
-          setIsAuthanticated(false);
+          setisAuthenticated(false);
           Cookies.remove("accessToken");
         }
       })
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        isAuthanticated,
+        isAuthenticated,
         isLogoutLoading,
         userLoading,
         getUser,

@@ -37,10 +37,7 @@ const Video = ({ duration, video, id }: VideoProps) => {
   };
 
   return (
-    <div
-      id={id}
-      className="max-w-[360px] w-full h-full flex flex-col gap-2 cursor-pointer"
-    >
+    <div id={id} className={`w-full h-full flex flex-col gap-2 cursor-pointer`}>
       <div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

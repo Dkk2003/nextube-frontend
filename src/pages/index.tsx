@@ -1,6 +1,4 @@
-import UserAPI from "@/axios/user";
 import { useEffect, useRef, useState } from "react";
-import Cookies from "js-cookie";
 import { useUser } from "@/contexts/auth";
 import { Meta } from "@/layouts/Meta";
 import { Main } from "@/templates/Main";
@@ -10,13 +8,15 @@ import Video from "@/components/Video";
 import VideoType from "@/types/VideoType";
 import VideoAPI from "@/axios/video";
 import { CATAGORIES } from "@/utils/constants";
+import { authanticatedRoute } from "@/utils/authguard";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const sidebarState = nookies.get(ctx)?.sidebarState === "true";
+  authanticatedRoute(ctx);
+  const sidebarState = nookies.get(ctx)?.saidebarState === "true";
 
   return {
     props: {
-      initialSidebarState: sidebarState, // Pass the state as a prop
+      initialSidebarState: sidebarState,
     },
   };
 };
@@ -27,36 +27,25 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(true);
-  const sideBarIsOpen = Cookies.get("sidebarState") === "true";
-
   const [videos, setVideos] = useState<VideoType[] | null>(null);
+  const [columns, setColumns] = useState(3); // Default columns
 
   const handleScroll = () => {
     if (!containerRef.current) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
 
-    setShowLeftShadow(scrollLeft > 0); // Show left shadow if scrolled away from start
-    setShowRightShadow(scrollLeft + clientWidth < scrollWidth); // Show right shadow if not at the end
+    setShowLeftShadow(scrollLeft > 0);
+    setShowRightShadow(scrollLeft + clientWidth < scrollWidth);
   };
 
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
-      handleScroll(); // Initial check
+      handleScroll();
       return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, []);
-
-  useEffect(() => {
-    UserAPI.loginUser({
-      email: "darshan1010prajapati@gmail.com",
-      password: "Test@123",
-    }).then((res) => {
-      console.log(res.data);
-      Cookies.set("accessToken", res?.data?.accessToken as string);
-    });
   }, []);
 
   useEffect(() => {
@@ -66,26 +55,48 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
     });
   }, []);
 
-  console.log(user);
+  useEffect(() => {
+    const updateColumns = () => {
+      const screenWidth = window.innerWidth;
+
+      if (screenWidth >= 1280) {
+        setColumns(4); // 4 videos per row on extra-large screens
+      } else if (screenWidth >= 1024) {
+        setColumns(3); // 3 videos per row on large screens
+      } else if (screenWidth >= 768) {
+        setColumns(2); // 2 videos per row on tablets
+      } else {
+        setColumns(1); // 1 video per row on mobile
+      }
+    };
+
+    updateColumns();
+    window.addEventListener("resize", updateColumns);
+
+    return () => {
+      window.removeEventListener("resize", updateColumns);
+    };
+  }, []);
+
   return (
     <Main
       initialSidebar={initialSidebarState}
       meta={<Meta title="Home - Nextube" description="Home - Nextube" />}
     >
-      <div className="font-Inter w-full h-full text-white flex flex-col gap-5">
+      <div
+        id="video-div"
+        className="font-Inter w-full h-full text-white flex flex-col gap-5"
+      >
         <div className="relative max-w-full w-full">
           <div ref={containerRef} className="w-full flex gap-2 overflow-x-auto">
-            {/* Left Shadow */}
             {showLeftShadow && (
               <div className="absolute top-0 left-0 h-full w-10 bg-gradient-to-r from-[#333333] via-[#333333] to-transparent pointer-events-none" />
             )}
 
-            {/* Right Shadow */}
             {showRightShadow && (
               <div className="absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-[#333333] via-[#333333] to-transparent pointer-events-none" />
             )}
 
-            {/* Category Items */}
             {CATAGORIES &&
               CATAGORIES.length > 0 &&
               CATAGORIES.map(({ id, name }) => {
@@ -102,9 +113,8 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
         </div>
 
         <div
-          className={`grid ${
-            sideBarIsOpen ? "grid-cols-3" : "grid-cols-4"
-          } gap-3`}
+          className="grid gap-4 gap-y-5"
+          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
         >
           {videos &&
             videos?.length &&
