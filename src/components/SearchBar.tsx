@@ -12,7 +12,7 @@ const SearchBar = () => {
       )}
       <input
         placeholder="Search"
-        className="w-full rounded-l-full placeholder:text-fontPrimary py-1.5 px-2.5 outline-none bg-transparent border-r border-dark-50"
+        className="w-full placeholder:text-neutral-600 rounded-l-full py-1.5 px-2.5 outline-none bg-transparent border-r border-dark-50"
         onFocus={() => setIsSearchFocused(true)}
         onBlur={() => setIsSearchFocused(false)}
       />

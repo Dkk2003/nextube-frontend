@@ -22,8 +22,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 };
 
 const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
-  const { user } = useUser();
-
   const containerRef = useRef<HTMLDivElement>(null);
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(true);

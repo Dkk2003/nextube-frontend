@@ -11,12 +11,20 @@ const registerUser = async (user: FormData): Promise<ApiResponse<UserType>> => {
 };
 
 const loginUser = async (
-  user: UserType
+  identifier: UserType['email'] | UserType['username'],
+  password: UserType['password']
 ): Promise<
   ApiResponse<{ user: UserType; accessToken: string; refreshToken: string }>
 > => {
-  return http.post("/users/login", user).then((res) => res.data);
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier as string); // Proper email validation
+
+  return http.post("/users/login", {
+    ...(isEmail ? { email: identifier } : { username: identifier }),
+    password, // Include password in the payload
+  }).then((res) => res.data);
 };
+
+
 
 const logOut = async (): Promise<ApiResponse<{}>> => {
   return http.post("/users/logout", {}).then((res) => res.data);
