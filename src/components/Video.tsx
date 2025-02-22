@@ -41,7 +41,7 @@ const Video = ({ duration, video, id }: VideoProps) => {
       <div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="relative w-full h-[202px] rounded-lg overflow-hidden transition-all duration-300 ease-in-out"
+        className="relative w-full h-[250px] md:h-[202px] rounded-lg overflow-hidden transition-all duration-300 ease-in-out"
       >
         {isPlaying ? (
           <ReactPlayer
