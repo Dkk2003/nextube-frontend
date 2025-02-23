@@ -2,7 +2,6 @@ import UserAPI from "@/axios/user";
 import Logo from "@/components/Logo";
 import { unauthanticatedRoute } from "@/utils/authguard";
 import { useFormik } from "formik";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import * as Yup from "yup";
 import Cookies from "js-cookie";
@@ -120,7 +119,7 @@ const SignIn = () => {
           {/* ✅ Google Sign-In */}
           <button
             type="button"
-            onClick={() => signIn("google")}
+            onClick={() => console.log("google")}
             className="bg-blue-500 text-white px-4 py-2 rounded"
           >
             Sign in with Google

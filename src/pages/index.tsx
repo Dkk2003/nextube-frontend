@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useUser } from "@/contexts/auth";
 import { Meta } from "@/layouts/Meta";
 import { Main } from "@/templates/Main";
 import nookies from "nookies";
