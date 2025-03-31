@@ -13,13 +13,13 @@ const SignIn = () => {
   // ✅ Validation Schema
   const validationSchema = Yup.object({
     identifier: Yup.string()
-      .required("Email or Username is required")
+      .required("Required")
       .matches(
         /^[^\s@]+@[^\s@]+\.[^\s@]+$|^[a-zA-Z0-9_.-]+$/,
         "Enter a valid email or username"
       ),
     password: Yup.string()
-      .required("Password is required")
+      .required("Required")
       .min(6, "Password must be at least 6 characters"),
   });
 
@@ -110,11 +110,19 @@ const SignIn = () => {
           {/* ✅ Sign In Button */}
           <button
             type="submit"
-            className="bg-logoRed active:bg-logoRed/60 p-2 mt-2 rounded-md text-lg font-normal"
+            className="bg-logoRed active:bg-logoRed/60 p-2 mt-2 rounded-md text-base font-normal"
             disabled={isSubmitting}
           >
             Sign In
           </button>
+
+          <div className="flex items-center my-4">
+            <div className="flex-grow border-t border-dark-50"></div>
+            <span className="mx-8 text-xs tracking-wider text-dark-50">
+              or continue with
+            </span>
+            <div className="flex-grow border-t border-dark-50"></div>
+          </div>
 
           {/* ✅ Google Sign-In */}
           <button
