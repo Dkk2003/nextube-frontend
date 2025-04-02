@@ -6,7 +6,7 @@ import Image from "next/image";
 import Logo from "@/components/Logo";
 import Pencil from "@/components/icons/Pencil";
 import UserAPI from "@/axios/user";
-import { errorToast, successToast } from "@/utils/constants";
+import { errorToast, infoToast, successToast } from "@/utils/constants";
 import OtpInput from "react-otp-input";
 import { useRouter } from "next/router";
 import { unauthanticatedRoute } from "@/utils/authguard";
@@ -25,6 +25,7 @@ const SignUp = () => {
   const [step, setStep] = useState(1);
   const [isUserRegLoading, setIsUserRegLoading] = useState<boolean>(false);
   const [isOtpLoading, setIsOtpLoading] = useState<boolean>(false);
+  const [isResendOtpLoading, setIsResendOtpLoading] = useState<boolean>(false);
 
   // ---------------------------
   // Formik Setup & Validation
@@ -46,6 +47,37 @@ const SignUp = () => {
       })
       .finally(() => {
         setIsOtpLoading(false);
+      });
+  };
+
+  const regenrateOtp = async (email: string) => {
+    setIsResendOtpLoading(false);
+    UserAPI.resendOtp(email)
+      .then((res) => {
+        if (res.statusCode === 200) {
+          successToast("OTP sent successfully");
+        }
+      })
+      .catch((err) => {
+        switch (err.status) {
+          case 404:
+            errorToast("Your Email does not exist");
+            break;
+
+          case 400:
+            errorToast("Email is required");
+            break;
+
+          case 429:
+            infoToast("OTP already sent");
+            break;
+
+          default:
+            break;
+        }
+      })
+      .finally(() => {
+        setIsResendOtpLoading(false);
       });
   };
 
@@ -226,7 +258,7 @@ const SignUp = () => {
           {/* ---------------------------
               Step 3: OTP Verification 
           --------------------------- */}
-          <div className="flex flex-col gap-20 w-full min-w-full px-1">
+          <div className="flex flex-col gap-12 w-full min-w-full px-1">
             <div className="text-3xl">
               {isOtpLoading ? (
                 <Skeleton className={`rounded-md w-fit px-12 py-4`} />
@@ -295,15 +327,30 @@ const SignUp = () => {
                 />
               )}
             </div>
-            <button
-              type="submit"
-              disabled={isOtpLoading}
-              className={`bg-logoRed text-white p-2 rounded-md w-full mt-6 flex justify-center items-center ${
-                isOtpLoading && "cursor-not-allowed"
-              }`}
-            >
-              {isOtpLoading ? <Spinner /> : "Verify OTP"}
-            </button>
+            <div className="flex flex-col justify-center items-start gap-7">
+              <button
+                type="submit"
+                disabled={isOtpLoading}
+                className={`bg-logoRed text-white p-2 rounded-md w-full flex justify-center items-center ${
+                  isOtpLoading && "cursor-not-allowed"
+                }`}
+              >
+                {isOtpLoading ? <Spinner /> : "Verify OTP"}
+              </button>
+              <div className="text-sm tracking-wide">
+                Didn&apos;t Receive?{" "}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await regenrateOtp(values.email);
+                  }}
+                  className="hover:underline"
+                >
+                  {" "}
+                  Resend
+                </button>
+              </div>
+            </div>
           </div>
         </motion.div>
       </form>
