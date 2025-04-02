@@ -6,9 +6,13 @@ const authMe = async (): Promise<ApiResponse<UserType>> => {
   return http.get("/users/current-user").then((res) => res.data);
 };
 
-const registerUser = async (user: FormData): Promise<ApiResponse<UserType>> => {
-  return http.post("/register", user).then((res) => res.data);
+const registerUser = async (email: string): Promise<ApiResponse<{otp:string}>> => {
+  return http.post("/users/register", {email}).then((res) => res.data);
 };
+
+const verifyOtp = async (user:FormData):Promise<ApiResponse<UserType>> => {
+return http.post("/users/verifyOtp",user).then((res) => res.data);
+}
 
 const loginUser = async (
   identifier: UserType['email'] | UserType['username'],
@@ -35,6 +39,7 @@ const UserAPI = {
   registerUser,
   loginUser,
   logOut,
+  verifyOtp
 };
 
 export default UserAPI;
