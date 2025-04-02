@@ -1,6 +1,7 @@
 import DownloadIcon from "@/components/icons/DownloadIcon";
 import ReportIcon from "@/components/icons/ReportIcon";
 import ShareIcon from "@/components/icons/ShareIcon";
+import { toast } from "react-toastify";
 
 export const VIDEO_OPTIONS = [
   { id: 1, name: "Download", icon: <DownloadIcon /> },
@@ -30,3 +31,6 @@ export const CATAGORIES = [
   { id: 19, name: "Bollywood" },
   { id: 20, name: "Gadgets" },
 ];
+
+export const successToast = (message: string) => toast.success(message);
+export const errorToast = (message: string) => toast.error(message);
