@@ -14,6 +14,10 @@ const verifyOtp = async (user:FormData):Promise<ApiResponse<UserType>> => {
 return http.post("/users/verifyOtp",user).then((res) => res.data);
 }
 
+const resendOtp = async (email:string):Promise<ApiResponse<{}>> => {
+return http.post("/users/resend-otp",{email}).then((res) => res.data);
+}
+
 const loginUser = async (
   identifier: UserType['email'] | UserType['username'],
   password: UserType['password']
@@ -39,7 +43,8 @@ const UserAPI = {
   registerUser,
   loginUser,
   logOut,
-  verifyOtp
+  verifyOtp,
+  resendOtp
 };
 
 export default UserAPI;
