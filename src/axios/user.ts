@@ -18,6 +18,14 @@ const resendOtp = async (email:string):Promise<ApiResponse<{}>> => {
 return http.post("/users/resend-otp",{email}).then((res) => res.data);
 }
 
+const forgotPassword = async (email:string):Promise<ApiResponse<{}>> => {
+  return http.post("/users/forgot-password",{email}).then((res) => res.data);
+}
+
+const resetPassword = async (newPassword:string,token:string):Promise<ApiResponse<{}>> => {
+  return http.post("/users/reset-password",{newPassword,token}).then((res) => res.data);
+}
+
 const loginUser = async (
   identifier: UserType['email'] | UserType['username'],
   password: UserType['password']
@@ -44,7 +52,9 @@ const UserAPI = {
   loginUser,
   logOut,
   verifyOtp,
-  resendOtp
+  resendOtp,
+  forgotPassword,
+  resetPassword
 };
 
 export default UserAPI;
