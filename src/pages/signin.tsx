@@ -159,12 +159,12 @@ const SignIn = () => {
             {isSubmitting ? (
               <Skeleton className={`rounded-md h-4 w-28`} />
             ) : (
-              <a
+              <Link
                 href="/reset-password"
                 className="text-sm text-blue-400 font-normal tracking-wide hover:underline"
               >
                 Forgot Password?
-              </a>
+              </Link>
             )}
           </div>
 
