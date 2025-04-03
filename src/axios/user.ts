@@ -6,8 +6,8 @@ const authMe = async (): Promise<ApiResponse<UserType>> => {
   return http.get("/users/current-user").then((res) => res.data);
 };
 
-const registerUser = async (email: string): Promise<ApiResponse<{otp:string}>> => {
-  return http.post("/users/register", {email}).then((res) => res.data);
+const registerUser = async (email: string,username:string): Promise<ApiResponse<{otp:string}>> => {
+  return http.post("/users/register", {email,username}).then((res) => res.data);
 };
 
 const verifyOtp = async (user:FormData):Promise<ApiResponse<UserType>> => {

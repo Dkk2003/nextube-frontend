@@ -139,9 +139,9 @@ const SignUp = () => {
     }
   };
 
-  const signUpUser = async (email: string) => {
+  const signUpUser = async (email: string, username: string) => {
     setIsUserRegLoading(true);
-    UserAPI.registerUser(email)
+    UserAPI.registerUser(email, username)
       .then((res) => {
         if (res?.statusCode === 200) {
           successToast("OTP has been sent to your email.");
@@ -150,7 +150,13 @@ const SignUp = () => {
       })
       .catch((err) => {
         if (err.status === 409) {
-          errorToast("Email already exists!");
+          errorToast(
+            `${
+              err.response.data.conflictField === "username"
+                ? "Username"
+                : "Email"
+            } already exists`
+          );
         }
       })
       .finally(() => {
@@ -164,7 +170,7 @@ const SignUp = () => {
     const errors = await validateForm();
 
     if (Object.keys(errors).length === 0) {
-      await signUpUser(values.email);
+      await signUpUser(values.email, values.username);
     } else {
       setTouched({ email: true, username: true, password: true });
     }
