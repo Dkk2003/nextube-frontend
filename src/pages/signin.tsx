@@ -9,14 +9,7 @@ import { useRouter } from "next/router";
 import { errorToast } from "@/utils/constants";
 import Skeleton from "@/components/Skeleton";
 import Spinner from "@/components/Spinner";
-import dynamic from "next/dynamic";
-
-const GoogleLoginButton = dynamic(
-  () => import("@/components/GoogleLoginButton"),
-  {
-    ssr: false,
-  }
-);
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const SignIn = () => {
   const router = useRouter();
