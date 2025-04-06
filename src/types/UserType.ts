@@ -11,6 +11,7 @@ interface UserType {
   watchHistory?: VideoType[];
   createdAt?: Date;
   updatedAt?: Date;
+  provider?: "email" | "google";
   __v?: number;
 }
 

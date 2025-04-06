@@ -10,10 +10,13 @@ import {
   useContext,
   useEffect,
   ReactNode,
+  Dispatch,
+  SetStateAction,
 } from "react";
 
 interface AuthContextProps {
   user: UserType | null;
+  setUser: Dispatch<SetStateAction<UserType | null>>;
   userLoading: boolean;
   isLogoutLoading: boolean;
   isAuthenticated: boolean;
@@ -69,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         isAuthenticated,
         isLogoutLoading,
         userLoading,

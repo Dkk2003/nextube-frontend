@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { errorToast } from "@/utils/constants";
 import Skeleton from "@/components/Skeleton";
 import Spinner from "@/components/Spinner";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const SignIn = () => {
   const router = useRouter();
@@ -196,15 +197,7 @@ const SignIn = () => {
           )}
 
           {/* ✅ Google Sign-In */}
-          <button
-            type="button"
-            disabled={isSubmitting}
-            className={`bg-blue-500 text-white px-4 py-2 rounded ${
-              isSubmitting && "cursor-not-allowed"
-            }`}
-          >
-            Sign in with Google
-          </button>
+          <GoogleLoginButton />
 
           {/* ✅ Sign Up Link */}
           {isSubmitting ? (
