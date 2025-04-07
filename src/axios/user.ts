@@ -56,6 +56,15 @@ const logOut = async (): Promise<ApiResponse<{}>> => {
   return http.post("/users/logout", {}).then((res) => res.data);
 };
 
+const completeProfile = async (
+  username: string,
+  password: string
+): Promise<ApiResponse<{}>> => {
+  return http
+    .patch("/users/complete-profile", { username, password })
+    .then((res) => res.data);
+};
+
 const loginWithGoogle = async (
   accessToken: string
 ): Promise<
@@ -78,6 +87,7 @@ const UserAPI = {
   forgotPassword,
   resetPassword,
   loginWithGoogle,
+  completeProfile,
 };
 
 export default UserAPI;

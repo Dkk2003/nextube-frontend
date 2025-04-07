@@ -8,6 +8,8 @@ import VideoType from "@/types/VideoType";
 import VideoAPI from "@/axios/video";
 import { CATAGORIES } from "@/utils/constants";
 import { authanticatedRoute } from "@/utils/authguard";
+import UserNameAndPasswordPopup from "@/components/UserNameAndPasswordModal";
+import { useUser } from "@/contexts/auth";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   authanticatedRoute(ctx);
@@ -22,10 +24,17 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useUser();
+
+  console.log("user>>", user);
+
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(true);
   const [videos, setVideos] = useState<VideoType[] | null>(null);
-  const [columns, setColumns] = useState(3); // Default columns
+  const [columns, setColumns] = useState(3);
+  const [userNameAndPasswordPopupIsOpen, setUserNameAndPasswordPopup] =
+    useState<boolean>(false);
 
   const handleScroll = () => {
     if (!containerRef.current) return;
@@ -51,6 +60,20 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
       setVideos(res?.data?.docs as VideoType[]);
     });
   }, []);
+
+  useEffect(() => {
+    if (user?.provider === "google" && !user?.password && !user?.username) {
+      setUserNameAndPasswordPopup(true);
+      console.log("model open");
+    } else {
+      setUserNameAndPasswordPopup(false);
+    }
+  }, [
+    user?.password,
+    user?.provider,
+    user?.username,
+    userNameAndPasswordPopupIsOpen,
+  ]);
 
   useEffect(() => {
     const updateColumns = () => {
@@ -80,6 +103,11 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
       initialSidebar={initialSidebarState}
       meta={<Meta title="Home - Nextube" description="Home - Nextube" />}
     >
+      <UserNameAndPasswordPopup
+        isOpen={userNameAndPasswordPopupIsOpen}
+        setIsOpen={setUserNameAndPasswordPopup}
+      />
+
       <div
         id="video-div"
         className="font-Inter w-full h-full text-white flex flex-col gap-5"
@@ -110,8 +138,11 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
         </div>
 
         <div
-          className="grid gap-4 gap-y-5"
-          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+          className="grid gap-4 gap-y-5 overflow-y-auto pr-2"
+          style={{
+            gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+            maxHeight: "calc(100vh - 150px)",
+          }}
         >
           {videos &&
             videos?.length &&
