@@ -49,13 +49,9 @@ const SignIn = () => {
           }
         })
         .catch((err) => {
-          if (err.status === 500) {
-            errorToast("User does not exist");
-          }
-
           switch (err.status) {
             case 500:
-              errorToast("User does not exist");
+              errorToast("Please try using Google");
               break;
 
             case 401:

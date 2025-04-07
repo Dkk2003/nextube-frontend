@@ -43,7 +43,8 @@ const GoogleLoginButton = () => {
 
   return (
     <button
-      onClick={() => {
+      onClick={(e) => {
+        e.preventDefault();
         handleLoginWithGoogle();
       }}
       type="button"
