@@ -20,8 +20,6 @@ const Header = ({
   const { isAuthenticated, logOut } = useUser();
   const router = useRouter();
 
-  console.log("isAuthenticated>>", isAuthenticated);
-
   // Detect Mobile Screen
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);

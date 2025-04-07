@@ -27,8 +27,6 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
 
   const { user } = useUser();
 
-  console.log("user>>", user);
-
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(true);
   const [videos, setVideos] = useState<VideoType[] | null>(null);
@@ -56,7 +54,6 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
 
   useEffect(() => {
     VideoAPI.getVideos().then((res) => {
-      console.log("video", res.data?.docs);
       setVideos(res?.data?.docs as VideoType[]);
     });
   }, []);
@@ -64,7 +61,6 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
   useEffect(() => {
     if (user?.provider === "google" && !user?.password && !user?.username) {
       setUserNameAndPasswordPopup(true);
-      console.log("model open");
     } else {
       setUserNameAndPasswordPopup(false);
     }
