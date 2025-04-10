@@ -68,7 +68,6 @@ const Header = ({
         onClick={() => {
           setIsProfileOpen(!isProfileOpen);
         }}
-        // onMouseLeave={() => !isMobile && setIsProfileOpen(false)}
       >
         <div
           className="cursor-pointer"
@@ -84,7 +83,13 @@ const Header = ({
             onMouseLeave={() => !isMobile && setIsProfileOpen(false)}
             onClick={(e) => e.stopPropagation()}
           >
-            <Button className="flex items-center gap-3 text-white w-full text-base text-left px-2 py-2 text-dark rounded-lg hover:bg-neutralDivider">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push("/profile");
+              }}
+              className="flex items-center gap-3 text-white w-full text-base text-left px-2 py-2 text-dark rounded-lg hover:bg-neutralDivider"
+            >
               <ProfileIcon /> Profile
             </Button>
             {isAuthenticated ? (
