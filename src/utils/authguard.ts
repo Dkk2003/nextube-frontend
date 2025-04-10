@@ -3,21 +3,18 @@ import nookies from "nookies";
 
 const unauthanticatedRoute: GetServerSideProps = async (ctx) => {
   const accessToken = nookies.get(ctx)?.accessToken;
-  
+
   if (!accessToken) {
     return { props: {} }; // No token, allow access to the sign-in page
-  } 
-  else{
+  } else {
     return {
-        redirect: {
-          permanent: false,
-          destination: "/",
-        },
-      };
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+    };
   }
-
 };
-
 
 const authanticatedRoute: GetServerSideProps = async (ctx) => {
   const accessToken = nookies.get(ctx)?.accessToken;
