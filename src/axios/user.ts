@@ -1,6 +1,7 @@
 import { ApiResponse } from "@/types/ApiResponse";
 import http from "./axios.config";
 import UserType from "@/types/UserType";
+import ChannelType from "@/types/ChannelType";
 
 const authMe = async (): Promise<ApiResponse<UserType>> => {
   return http.get("/users/current-user").then((res) => res.data);
@@ -77,6 +78,12 @@ const loginWithGoogle = async (
     .then((res) => res.data);
 };
 
+const getChannelDetails = async (
+  userName: UserType["username"]
+): Promise<ApiResponse<{}>> => {
+  return http.get(`/users/channel/${userName}`).then((res) => res.data);
+};
+
 const UserAPI = {
   authMe,
   registerUser,
@@ -88,6 +95,7 @@ const UserAPI = {
   resetPassword,
   loginWithGoogle,
   completeProfile,
+  getChannelDetails,
 };
 
 export default UserAPI;
