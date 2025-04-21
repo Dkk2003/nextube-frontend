@@ -1,14 +1,17 @@
+import UserAPI from "@/axios/user";
 import EditIcon from "@/components/icons/EditIcon";
 import Skeleton from "@/components/Skeleton";
 import Spinner from "@/components/Spinner";
 import { useUser } from "@/contexts/auth";
 import { Meta } from "@/layouts/Meta";
 import { Main } from "@/templates/Main";
+import ChannelType from "@/types/ChannelType";
 import { authanticatedRoute } from "@/utils/authguard";
+import { errorToast } from "@/utils/constants";
 import { useFormik } from "formik";
 import { GetServerSideProps } from "next";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
 
 const MyProfile = ({
@@ -19,8 +22,25 @@ const MyProfile = ({
   const { user } = useUser();
 
   const [isEditing, setIsEditing] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [channel, setChannel] = useState<ChannelType | null>(null);
 
-  const isLoading = !user;
+  useEffect(() => {
+    setIsLoading(true);
+    if (user && user?.username) {
+      UserAPI.getChannelDetails(user?.username)
+        .then((res) => {
+          setChannel(res.data as ChannelType);
+        })
+        .catch((err) => {
+          console.log(err);
+          errorToast("Somethong Went Wrong");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [user]);
 
   const {
     values,
@@ -39,7 +59,6 @@ const MyProfile = ({
       email: "",
       username: "",
       password: "",
-      otp: "",
     },
     validationSchema: Yup.object({
       avatar: Yup.mixed().required("Profile image is required"),
@@ -71,9 +90,9 @@ const MyProfile = ({
           <div className="relative rounded-xl max-h-40 sm:max-h-52 h-52 w-full bg-skeletonLoader">
             {isLoading ? (
               <Skeleton className="w-full h-full rounded-xl" />
-            ) : user?.coverImage ? (
+            ) : channel?.coverImage ? (
               <Image
-                src={user?.coverImage as string}
+                src={channel?.coverImage as string}
                 alt="Cover image"
                 fill
                 className="object-cover rounded-xl"
@@ -109,7 +128,7 @@ const MyProfile = ({
               ) : (
                 <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
                   <Image
-                    src={user?.avatar as string}
+                    src={channel?.avatar as string}
                     alt="Profile image"
                     width={1000}
                     height={1000}
@@ -129,16 +148,25 @@ const MyProfile = ({
                   <div className="flex flex-col gap-2">
                     <Skeleton className="h-6 w-36 sm:w-48 rounded" />
                     <Skeleton className="h-4 w-24 sm:w-36 rounded" />
+                    <Skeleton className="h-4 w-24 sm:w-36 rounded" />
                   </div>
                 ) : (
-                  <>
+                  <div className="flex flex-col gap-1">
                     <h2 className="text-lg sm:text-2xl font-semibold">
-                      {user?.fullName}
+                      {channel?.fullName}
                     </h2>
-                    <p className="text-sm sm:text-lg text-gray-600">
-                      @{user?.username}
-                    </p>
-                  </>
+                    <div className="flex justify-center items-center gap-2">
+                      <p className="text-sm sm:text-base text-white">
+                        @{channel?.username}
+                      </p>
+                      <span className="text-sm sm:text-base text-gray-400">
+                        •
+                      </span>
+                      <p className="text-sm sm:text-base text-gray-400">
+                        {channel?.subscribersCount} Subscribers
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -185,7 +213,7 @@ const MyProfile = ({
                       ? "border-red-500"
                       : "border-dark-50"
                   }`}
-                  value={user?.fullName || values.fullName}
+                  value={channel?.fullName || values.fullName}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   disabled={isEditing}
@@ -221,7 +249,7 @@ const MyProfile = ({
                       ? "border-red-500"
                       : "border-dark-50"
                   }`}
-                  value={user?.username || values.username}
+                  value={channel?.username || values.username}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   disabled={isEditing}
@@ -246,7 +274,7 @@ const MyProfile = ({
                 <Skeleton className="rounded-md p-6" />
               ) : (
                 <div className="bg-dark-50/20 cursor-not-allowed rounded-md outline-none border p-3 border-dark-50">
-                  {user?.email}
+                  {channel?.email}
                 </div>
               )}
             </div>
