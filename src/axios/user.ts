@@ -80,7 +80,7 @@ const loginWithGoogle = async (
 
 const getChannelDetails = async (
   userName: UserType["username"]
-): Promise<ApiResponse<{}>> => {
+): Promise<ApiResponse<ChannelType>> => {
   return http.get(`/users/channel/${userName}`).then((res) => res.data);
 };
 

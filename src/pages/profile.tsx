@@ -1,3 +1,4 @@
+import { SubscriptionAPI } from "@/axios/subscriptions";
 import UserAPI from "@/axios/user";
 import EditIcon from "@/components/icons/EditIcon";
 import Skeleton from "@/components/Skeleton";
@@ -6,12 +7,13 @@ import { useUser } from "@/contexts/auth";
 import { Meta } from "@/layouts/Meta";
 import { Main } from "@/templates/Main";
 import ChannelType from "@/types/ChannelType";
+import SubscriptionType from "@/types/SubscriptionType";
 import { authanticatedRoute } from "@/utils/authguard";
 import { errorToast } from "@/utils/constants";
 import { useFormik } from "formik";
 import { GetServerSideProps } from "next";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as Yup from "yup";
 
 const MyProfile = ({
@@ -19,28 +21,69 @@ const MyProfile = ({
 }: {
   initialSidebarState: boolean;
 }) => {
-  const { user } = useUser();
+  const { user, getUser } = useUser();
 
   const [isEditing, setIsEditing] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [channel, setChannel] = useState<ChannelType | null>(null);
+  const [subscribers, setSubscribers] = useState<SubscriptionType[] | null>(
+    null
+  );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
+  const handleFileUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log("Selected file:", file);
+      setFieldValue("coverImage", file);
+      console.log(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const getSubscriberData = (channelId: string) => {
     setIsLoading(true);
-    if (user && user?.username) {
-      UserAPI.getChannelDetails(user?.username)
+    SubscriptionAPI.getSubscriber(channelId)
+      .then((res) => {
+        setSubscribers(res.data as SubscriptionType[]);
+      })
+      .catch((err) => {
+        console.log(err);
+        errorToast("Something Went Wrong");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const getChannelData = useCallback(() => {
+    setIsLoading(true);
+    if (user?.username) {
+      UserAPI.getChannelDetails(user.username)
         .then((res) => {
+          getSubscriberData(res?.data?._id as string);
           setChannel(res.data as ChannelType);
         })
         .catch((err) => {
           console.log(err);
-          errorToast("Somethong Went Wrong");
+          errorToast("Something Went Wrong");
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
   }, [user]);
+
+  useEffect(() => {
+    getChannelData();
+  }, [getChannelData]);
 
   const {
     values,
@@ -55,6 +98,7 @@ const MyProfile = ({
   } = useFormik({
     initialValues: {
       avatar: null,
+      coverImage: null,
       fullName: "",
       email: "",
       username: "",
@@ -62,6 +106,7 @@ const MyProfile = ({
     },
     validationSchema: Yup.object({
       avatar: Yup.mixed().required("Profile image is required"),
+      coverImage: Yup.mixed().required("Cover image is required"),
       fullName: Yup.string().required("Required"),
       email: Yup.string().email("Invalid email").required("Required"),
       username: Yup.string().required("Required"),
@@ -85,42 +130,74 @@ const MyProfile = ({
         </h1>
       )}
 
-      <div className="flex flex-col gap-5 h-full">
+      <div className="flex flex-col gap-5 h-[calc(100vh+140px)] md:h-[calc(100vh+40px)]">
         <div className="bg-[#1f1f1f] rounded-xl mt-4 sm:mt-6">
           <div className="relative rounded-xl max-h-40 sm:max-h-52 h-52 w-full bg-skeletonLoader">
             {isLoading ? (
               <Skeleton className="w-full h-full rounded-xl" />
-            ) : channel?.coverImage ? (
+            ) : channel?.coverImage || previewUrl ? (
               <Image
-                src={channel?.coverImage as string}
+                src={previewUrl || channel?.coverImage || ""}
                 alt="Cover image"
                 fill
                 className="object-cover rounded-xl"
               />
             ) : (
-              <>
-                <button
-                  type="button"
-                  className="hidden sm:flex w-full h-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-500 transition-colors duration-200 cursor-pointer"
-                >
-                  <div className="p-2 bg-white rounded-full shadow-sm">
-                    <EditIcon size={40} />
-                  </div>
-                  <p className="text-white font-medium text-sm sm:text-base">
-                    Upload Cover Photo
-                  </p>
-                </button>
+              <div className="relative w-full h-full rounded-xl overflow-hidden">
+                {previewUrl ? (
+                  <Image
+                    src={previewUrl || channel?.coverImage || ""}
+                    alt="Cover"
+                    height={1000}
+                    width={1000}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <>
+                    {/* Hidden Input */}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
 
-                <button
-                  type="button"
-                  className="flex sm:hidden justify-end items-start w-full h-full"
-                >
-                  <div className="p-2 mt-2 mr-2 bg-white rounded-full shadow-sm">
-                    <EditIcon size={20} />
-                  </div>
-                </button>
-              </>
+                    {/* Desktop Upload Button */}
+                    <button
+                      type="button"
+                      onClick={handleFileUploadClick}
+                      className="hidden sm:flex absolute inset-0 w-full h-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-500 transition-colors duration-200 cursor-pointer bg-black/30"
+                    >
+                      <div className="p-2  rounded-full shadow-sm">
+                        <EditIcon size={40} />
+                      </div>
+                      <p className="text-white font-medium text-sm sm:text-base">
+                        Upload Cover Photo
+                      </p>
+                    </button>
+                  </>
+                )}
+              </div>
             )}
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+            {/* Mobile Upload Icon */}
+            <button
+              type="button"
+              onClick={handleFileUploadClick}
+              className="flex absolute top-2 right-2"
+            >
+              <div className="p-2 bg-white rounded-full shadow-sm">
+                <EditIcon size={20} />
+              </div>
+            </button>
 
             <div className="absolute -bottom-12 w-full flex justify-center sm:justify-start sm:pl-6">
               {isLoading ? (
@@ -163,7 +240,10 @@ const MyProfile = ({
                         •
                       </span>
                       <p className="text-sm sm:text-base text-gray-400">
-                        {channel?.subscribersCount} Subscribers
+                        {subscribers?.length ?? 0}{" "}
+                        {subscribers?.length === 1
+                          ? "Subscriber"
+                          : "Subscribers"}
                       </p>
                     </div>
                   </div>
@@ -187,7 +267,7 @@ const MyProfile = ({
           </div>
         </div>
 
-        <div className="bg-[#1f1f1f] rounded-xl p-6 w-full flex flex-col md:flex-row gap-5">
+        <div className="bg-[#1f1f1f] rounded-xl p-6 w-full flex flex-col md:flex-row md:gap-5">
           <div className="w-full md:w-1/2">
             <div className="flex flex-col gap-1 mt-4">
               {isLoading ? (
@@ -206,7 +286,7 @@ const MyProfile = ({
                   placeholder="John Doe"
                   className={`${
                     isEditing
-                      ? "bg-dark-50/20 cursor-not-allowed"
+                      ? "bg-dark-50/20 cursor-not-allowed text-dark-50"
                       : "bg-transparent"
                   } rounded-md placeholder:text-dark-50 outline-none border p-3 ${
                     touched.fullName && errors.fullName
@@ -242,7 +322,7 @@ const MyProfile = ({
                   placeholder="yourusername"
                   className={`${
                     isEditing
-                      ? "bg-dark-50/20 cursor-not-allowed"
+                      ? "bg-dark-50/20 cursor-not-allowed text-dark-50"
                       : "bg-transparent"
                   } rounded-md placeholder:text-dark-50 outline-none border p-3 ${
                     touched.username && errors.username
@@ -273,12 +353,22 @@ const MyProfile = ({
               {isLoading ? (
                 <Skeleton className="rounded-md p-6" />
               ) : (
-                <div className="bg-dark-50/20 cursor-not-allowed rounded-md outline-none border p-3 border-dark-50">
+                <div className="bg-dark-50/20 text-dark-50   cursor-not-allowed rounded-md overflow-auto outline-none border p-3 border-dark-50">
                   {channel?.email}
                 </div>
               )}
             </div>
           </div>
+        </div>
+
+        <div className="rounded-xl w-full flex justify-end gap-5">
+          <button
+            type="submit"
+            className={`bg-logoRed active:bg-logoRed/60 w-full md:w-fit py-2 px-10 rounded-md text-base font-normal flex justify-center items-center`}
+            disabled={isLoading}
+          >
+            {isLoading ? <Spinner /> : "Save"}
+          </button>
         </div>
       </div>
     </Main>
