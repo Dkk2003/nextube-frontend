@@ -27,7 +27,7 @@ const GoogleLoginButton = () => {
               response?.data?.user
             ) {
               Cookies.set("accessToken", response?.data?.accessToken, {
-                expires: 7,
+                expires: 1,
               });
               setUser(response?.data?.user);
               router.push("/");

@@ -13,7 +13,7 @@ import { useUser } from "@/contexts/auth";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   authanticatedRoute(ctx);
-  const sidebarState = nookies.get(ctx)?.saidebarState === "true";
+  const sidebarState = nookies.get(ctx)?.sidebarState === "true";
 
   return {
     props: {
