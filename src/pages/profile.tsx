@@ -37,15 +37,35 @@ const MyProfile = ({
       fileInputRef.current.click();
     }
   };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      console.log("Selected file:", file);
+    if (!file) return;
+
+    const img = new window.Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const aspectRatio = img.width / img.height;
+      const minRatio = 2.5;
+      const maxRatio = 4.5;
+
+      if (aspectRatio < minRatio || aspectRatio > maxRatio) {
+        errorToast(
+          "Upload an image with a wide layout (between 2.5:1 and 4.5:1 aspect ratio)"
+        );
+        return;
+      }
+
       setFieldValue("coverImage", file);
-      console.log(file);
-      const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-    }
+    };
+
+    img.onerror = () => {
+      errorToast("Invalid image file.");
+    };
+
+    img.src = url;
   };
 
   const getSubscriberData = (channelId: string) => {
@@ -114,7 +134,9 @@ const MyProfile = ({
         .required("Required")
         .min(6, "Password must be at least 6 characters"),
     }),
-    onSubmit: async (value) => {},
+    onSubmit: async (value) => {
+      console.log(value);
+    },
   });
 
   return (
@@ -181,23 +203,28 @@ const MyProfile = ({
               </div>
             )}
 
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-            {/* Mobile Upload Icon */}
-            <button
-              type="button"
-              onClick={handleFileUploadClick}
-              className="flex absolute top-2 right-2"
-            >
-              <div className="p-2 bg-white rounded-full shadow-sm">
-                <EditIcon size={20} />
-              </div>
-            </button>
+            {channel?.coverImage ||
+              (previewUrl && (
+                <>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  {/* Mobile Upload Icon */}
+                  <button
+                    type="button"
+                    onClick={handleFileUploadClick}
+                    className="flex absolute top-2 right-2"
+                  >
+                    <div className="p-2 bg-white rounded-full shadow-sm">
+                      <EditIcon size={20} />
+                    </div>
+                  </button>
+                </>
+              ))}
 
             <div className="absolute -bottom-12 w-full flex justify-center sm:justify-start sm:pl-6">
               {isLoading ? (
