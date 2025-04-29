@@ -9,8 +9,8 @@ import { Main } from "@/templates/Main";
 import ChannelType from "@/types/ChannelType";
 import SubscriptionType from "@/types/SubscriptionType";
 import { authanticatedRoute } from "@/utils/authguard";
-import { errorToast } from "@/utils/constants";
-import { useFormik } from "formik";
+import { errorToast, successToast } from "@/utils/constants";
+import { isString, useFormik } from "formik";
 import { GetServerSideProps } from "next";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -29,16 +29,27 @@ const MyProfile = ({
   const [subscribers, setSubscribers] = useState<SubscriptionType[] | null>(
     null
   );
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const coverFileInputRef = useRef<HTMLInputElement | null>(null);
+  const avatarFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileUploadClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+  const handleCoverImageFileUploadClick = () => {
+    if (coverFileInputRef.current) {
+      coverFileInputRef.current.click();
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarImageFileUploadClick = () => {
+    if (avatarFileInputRef.current) {
+      avatarFileInputRef.current.click();
+    }
+  };
+
+  const handleCoverFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    handleChange(event);
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -58,7 +69,30 @@ const MyProfile = ({
       }
 
       setFieldValue("coverImage", file);
-      setPreviewUrl(url);
+      setCoverPreviewUrl(url);
+    };
+
+    img.onerror = () => {
+      errorToast("Invalid image file.");
+    };
+
+    img.src = url;
+  };
+
+  const handleAvatarFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    handleChange(event);
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    const img = new window.Image();
+
+    img.onload = () => {
+      setFieldValue("avatar", file);
+      setAvatarPreviewUrl(url);
     };
 
     img.onerror = () => {
@@ -101,6 +135,82 @@ const MyProfile = ({
     }
   }, [user]);
 
+  const updateProfileData = (user: { fullName: string; username: string }) => {
+    setIsLoading(true);
+    UserAPI.updateProfile(user)
+      .then((res) => {
+        if (res.statusCode === 200) {
+          successToast("Profile Updated Successfully");
+          setIsEditing(true);
+        }
+      })
+      .catch((err) => {
+        switch (err.status) {
+          case 400:
+            errorToast("Please Fill All Details");
+            break;
+
+          case 409:
+            errorToast("Username already exists");
+            break;
+
+          default:
+            break;
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const updateAvatarImage = (avatar: FormData) => {
+    setIsLoading(true);
+    UserAPI.updateAvatar(avatar)
+      .then((res) => {
+        if (res.statusCode === 200) {
+          successToast("Avatar Updated Successfully");
+          setIsEditing(true);
+        }
+      })
+      .catch((err) => {
+        switch (err.status) {
+          case 400:
+            errorToast("Avatar file is missing");
+            break;
+
+          default:
+            break;
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const updateCoverImageData = (coverImage: FormData) => {
+    setIsLoading(true);
+    UserAPI.updateCoverImage(coverImage)
+      .then((res) => {
+        if (res.statusCode === 200) {
+          successToast("Cover Image Updated Successfully");
+          setIsEditing(true);
+        }
+      })
+      .catch((err) => {
+        switch (err.status) {
+          case 400:
+            errorToast("Coverimage file is missing");
+            break;
+
+          default:
+            break;
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   useEffect(() => {
     getChannelData();
   }, [getChannelData]);
@@ -116,26 +226,47 @@ const MyProfile = ({
     setTouched,
     validateForm,
   } = useFormik({
+    enableReinitialize: true,
     initialValues: {
       avatar: null,
       coverImage: null,
-      fullName: "",
-      email: "",
-      username: "",
-      password: "",
+      fullName: channel?.fullName || "",
+      username: channel?.username || "",
     },
     validationSchema: Yup.object({
-      avatar: Yup.mixed().required("Profile image is required"),
-      coverImage: Yup.mixed().required("Cover image is required"),
+      avatar: Yup.mixed().nullable(),
+      coverImage: Yup.mixed().nullable(),
       fullName: Yup.string().required("Required"),
-      email: Yup.string().email("Invalid email").required("Required"),
       username: Yup.string().required("Required"),
-      password: Yup.string()
-        .required("Required")
-        .min(6, "Password must be at least 6 characters"),
     }),
     onSubmit: async (value) => {
-      console.log(value);
+      console.log("value", value);
+      const fullNameChanged = value.fullName !== channel?.fullName;
+      const userNameChanged = value.username !== channel?.username;
+      const avatarChanged = value.avatar !== null;
+      const coverImageChanged = value.coverImage !== null;
+
+      // 1. If profile details changed (name or username)
+      if (fullNameChanged || userNameChanged) {
+        updateProfileData({
+          fullName: value.fullName,
+          username: value.username,
+        });
+      }
+
+      // 2. If avatar changed
+      if (avatarChanged && value.avatar) {
+        const formData = new FormData();
+        formData.append("avatar", value.avatar);
+        updateAvatarImage(formData);
+      }
+
+      // 3. If cover image changed
+      if (coverImageChanged && value.coverImage) {
+        const formData = new FormData();
+        formData.append("coverImage", value.coverImage);
+        updateCoverImageData(formData);
+      }
     },
   });
 
@@ -152,23 +283,26 @@ const MyProfile = ({
         </h1>
       )}
 
-      <div className="flex flex-col gap-5 h-[calc(100vh+140px)] md:h-[calc(100vh+40px)]">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-5 h-[calc(100vh+140px)] md:h-[calc(100vh+40px)]"
+      >
         <div className="bg-[#1f1f1f] rounded-xl mt-4 sm:mt-6">
           <div className="relative rounded-xl max-h-40 sm:max-h-52 h-52 w-full bg-skeletonLoader">
             {isLoading ? (
               <Skeleton className="w-full h-full rounded-xl" />
-            ) : channel?.coverImage || previewUrl ? (
+            ) : channel?.coverImage || coverPreviewUrl ? (
               <Image
-                src={previewUrl || channel?.coverImage || ""}
-                alt="Cover image"
+                src={coverPreviewUrl || channel?.coverImage || ""}
+                alt={channel?.fullName || "Cover image"}
                 fill
                 className="object-cover rounded-xl"
               />
             ) : (
               <div className="relative w-full h-full rounded-xl overflow-hidden">
-                {previewUrl ? (
+                {coverPreviewUrl ? (
                   <Image
-                    src={previewUrl || channel?.coverImage || ""}
+                    src={coverPreviewUrl || channel?.coverImage || ""}
                     alt="Cover"
                     height={1000}
                     width={1000}
@@ -176,19 +310,19 @@ const MyProfile = ({
                   />
                 ) : (
                   <>
-                    {/* Hidden Input */}
                     <input
                       type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
+                      name="coverImage"
+                      id="coverImage"
+                      ref={coverFileInputRef}
+                      onChange={handleCoverFileChange}
                       accept="image/*"
                       className="hidden"
                     />
 
-                    {/* Desktop Upload Button */}
                     <button
                       type="button"
-                      onClick={handleFileUploadClick}
+                      onClick={handleCoverImageFileUploadClick}
                       className="hidden sm:flex absolute inset-0 w-full h-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-500 transition-colors duration-200 cursor-pointer bg-black/30"
                     >
                       <div className="p-2  rounded-full shadow-sm">
@@ -203,43 +337,59 @@ const MyProfile = ({
               </div>
             )}
 
-            {channel?.coverImage ||
-              (previewUrl && (
-                <>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                  {/* Mobile Upload Icon */}
+            <>
+              <input
+                type="file"
+                ref={coverFileInputRef}
+                onChange={handleCoverFileChange}
+                accept="image/*"
+                className="hidden"
+              />
+              {/* Mobile Upload Icon */}
+              <button
+                type="button"
+                onClick={handleCoverImageFileUploadClick}
+                className="flex absolute top-2 right-2"
+              >
+                <div className="p-2 bg-white rounded-full shadow-sm">
+                  <EditIcon size={20} />
+                </div>
+              </button>
+            </>
+
+            <div className="absolute -bottom-12 w-full flex justify-center sm:justify-start sm:pl-6">
+              <div className="relative">
+                <input
+                  type="file"
+                  ref={avatarFileInputRef}
+                  onChange={handleAvatarFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+                {isLoading ? (
+                  <Skeleton className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg" />
+                ) : (
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
+                    <Image
+                      src={avatarPreviewUrl || (channel?.avatar as string)}
+                      alt="Profile image"
+                      width={1000}
+                      height={1000}
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="absolute bottom-0 right-1">
                   <button
                     type="button"
-                    onClick={handleFileUploadClick}
-                    className="flex absolute top-2 right-2"
+                    onClick={handleAvatarImageFileUploadClick}
                   >
                     <div className="p-2 bg-white rounded-full shadow-sm">
                       <EditIcon size={20} />
                     </div>
                   </button>
-                </>
-              ))}
-
-            <div className="absolute -bottom-12 w-full flex justify-center sm:justify-start sm:pl-6">
-              {isLoading ? (
-                <Skeleton className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg" />
-              ) : (
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100">
-                  <Image
-                    src={channel?.avatar as string}
-                    alt="Profile image"
-                    width={1000}
-                    height={1000}
-                    className="object-cover"
-                  />
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -309,6 +459,7 @@ const MyProfile = ({
                 <input
                   type="text"
                   name="fullName"
+                  id="fullName"
                   autoComplete="off"
                   placeholder="John Doe"
                   className={`${
@@ -320,7 +471,7 @@ const MyProfile = ({
                       ? "border-red-500"
                       : "border-dark-50"
                   }`}
-                  value={channel?.fullName || values.fullName}
+                  value={values.fullName || channel?.fullName}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   disabled={isEditing}
@@ -356,7 +507,7 @@ const MyProfile = ({
                       ? "border-red-500"
                       : "border-dark-50"
                   }`}
-                  value={channel?.username || values.username}
+                  value={values.username || channel?.username}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   disabled={isEditing}
@@ -397,7 +548,7 @@ const MyProfile = ({
             {isLoading ? <Spinner /> : "Save"}
           </button>
         </div>
-      </div>
+      </form>
     </Main>
   );
 };

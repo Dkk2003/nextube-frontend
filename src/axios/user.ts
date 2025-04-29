@@ -84,6 +84,25 @@ const getChannelDetails = async (
   return http.get(`/users/channel/${userName}`).then((res) => res.data);
 };
 
+const updateProfile = async (user: {
+  fullName: string;
+  username: string;
+}): Promise<ApiResponse<UserType>> => {
+  return http.patch("/users/update-account", user).then((res) => res.data);
+};
+
+const updateAvatar = async (
+  avatar: FormData
+): Promise<ApiResponse<UserType>> => {
+  return http.patch("/users/avatar", avatar).then((res) => res.data);
+};
+
+const updateCoverImage = async (
+  coverImage: FormData
+): Promise<ApiResponse<UserType>> => {
+  return http.patch("/users/cover-image", coverImage).then((res) => res.data);
+};
+
 const UserAPI = {
   authMe,
   registerUser,
@@ -96,6 +115,9 @@ const UserAPI = {
   loginWithGoogle,
   completeProfile,
   getChannelDetails,
+  updateProfile,
+  updateCoverImage,
+  updateAvatar,
 };
 
 export default UserAPI;
