@@ -1,9 +1,10 @@
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import MoreDetailIcon from "./icons/MoreDetailIcon";
 import { VIDEO_OPTIONS } from "@/utils/constants";
 import VideoType from "@/types/VideoType";
+import Link from "next/link";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
@@ -18,16 +19,14 @@ const Video = ({ duration, video, id }: VideoProps) => {
   const [showVideoMenus, setShowVideoMenus] = useState<boolean>(false);
   const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  // Format seconds to mm:ss
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
-  // Handle hover to add delay before playing
   const handleMouseEnter = () => {
-    const timeout = setTimeout(() => setIsPlaying(true), 300); // Delay in milliseconds
+    const timeout = setTimeout(() => setIsPlaying(true), 300);
     setHoverTimeout(timeout);
   };
 
@@ -37,7 +36,7 @@ const Video = ({ duration, video, id }: VideoProps) => {
   };
 
   return (
-    <div id={id} className={`w-full h-full flex flex-col gap-2 cursor-pointer`}>
+    <Link href={`/watch/${id}`} id={id} className={`w-full h-full flex flex-col gap-2 cursor-pointer`}>
       <div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -54,7 +53,7 @@ const Video = ({ duration, video, id }: VideoProps) => {
           />
         ) : (
           <Image
-            src={video?.thumbnail as string}
+            src={(video?.thumbnail as string) || "/images/logo.png"}
             alt="thumbnail"
             height={202}
             width={360}
@@ -69,7 +68,7 @@ const Video = ({ duration, video, id }: VideoProps) => {
       <div className="flex justify-between gap-2 w-full">
         <div className="flex gap-3 items-start">
           <Image
-            src={video?.owner?.avatar as string}
+            src={(video?.owner?.avatar as string) || "/images/dummyProfileImage.webp"}
             alt="profile image"
             width={100}
             height={100}
@@ -79,13 +78,16 @@ const Video = ({ duration, video, id }: VideoProps) => {
             <p className="text-base font-medium leading-5 line-clamp-2">
               {video?.title}
             </p>
-            <p className="text-sm text-gray-500">{video?.owner?.fullName}</p>
+            <p className="text-sm text-gray-500">{video?.owner?.fullName || "Unknown"}</p>
           </div>
         </div>
 
         <span className="relative">
           <div
-            onClick={() => setShowVideoMenus(!showVideoMenus)}
+            onClick={(e) => {
+              e.preventDefault();
+              setShowVideoMenus(!showVideoMenus);
+            }}
             className="border rounded-full p-1 border-transparent hover:border-gray-300"
           >
             <MoreDetailIcon />
@@ -105,7 +107,7 @@ const Video = ({ duration, video, id }: VideoProps) => {
           )}
         </span>
       </div>
-    </div>
+    </Link>
   );
 };
 
