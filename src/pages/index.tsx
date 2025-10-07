@@ -29,10 +29,13 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
 
   const [showLeftShadow, setShowLeftShadow] = useState(false);
   const [showRightShadow, setShowRightShadow] = useState(true);
-  const [videos, setVideos] = useState<VideoType[] | null>(null);
+  const [videos, setVideos] = useState<VideoType[]>([]);
   const [columns, setColumns] = useState(3);
   const [userNameAndPasswordPopupIsOpen, setUserNameAndPasswordPopup] =
     useState<boolean>(false);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
 
   const handleScroll = () => {
     if (!containerRef.current) return;
@@ -53,10 +56,28 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
   }, []);
 
   useEffect(() => {
-    VideoAPI.getVideos().then((res) => {
-      setVideos(res?.data?.docs as VideoType[]);
+    // initial load
+    VideoAPI.getVideos(1, 12).then((res) => {
+      setVideos(((res?.data as any)?.docs || []) as VideoType[]);
+      setPage((res?.data as any)?.page || 1);
+      setHasNextPage(Boolean((res?.data as any)?.hasNextPage));
     });
   }, []);
+
+  const loadMore = async () => {
+    if (!hasNextPage || loadingMore) return;
+    setLoadingMore(true);
+    const nextPage = (page || 1) + 1;
+    try {
+      const res = await VideoAPI.getVideos(nextPage, 12);
+      const docs = ((res?.data as any)?.docs || []) as VideoType[];
+      setVideos((prev) => [...prev, ...docs]);
+      setPage((res?.data as any)?.page || nextPage);
+      setHasNextPage(Boolean((res?.data as any)?.hasNextPage));
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     if (user?.provider === "google" && !user?.password && !user?.username) {
@@ -141,7 +162,7 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
           }}
         >
           {videos &&
-            videos?.length &&
+            videos?.length > 0 &&
             videos?.map((video) => {
               return (
                 <Video
@@ -153,6 +174,18 @@ const Home = ({ initialSidebarState }: { initialSidebarState: boolean }) => {
               );
             })}
         </div>
+        {hasNextPage && (
+          <div className="w-full flex justify-center pt-2">
+            <button
+              type="button"
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="px-4 py-2 bg-logoRed rounded-md"
+            >
+              {loadingMore ? "Loading..." : "Load more"}
+            </button>
+          </div>
+        )}
       </div>
     </Main>
   );

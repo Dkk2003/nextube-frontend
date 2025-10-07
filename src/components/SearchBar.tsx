@@ -1,8 +1,17 @@
 import { useState } from "react";
 import SearchIcon from "./icons/SearchIcon";
+import { useRouter } from "next/router";
 
 const SearchBar = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [query, setQuery] = useState("");
+  const router = useRouter();
+
+  const goSearch = () => {
+    const q = query.trim();
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  };
+
   return (
     <div className="hidden md:flex items-center w-full border border-dark-50 max-w-[632px] rounded-full">
       {isSearchFocused && (
@@ -15,8 +24,16 @@ const SearchBar = () => {
         className="w-full placeholder:text-neutral-600 rounded-l-full py-1.5 px-2.5 outline-none bg-transparent border-r border-dark-50"
         onFocus={() => setIsSearchFocused(true)}
         onBlur={() => setIsSearchFocused(false)}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") goSearch();
+        }}
       />
-      <button className="flex bg-dark-50 rounded-r-full justify-center items-center w-[64px] p-1.5">
+      <button
+        onClick={goSearch}
+        className="flex bg-dark-50 rounded-r-full justify-center items-center w-[64px] p-1.5"
+      >
         <SearchIcon />
       </button>
     </div>

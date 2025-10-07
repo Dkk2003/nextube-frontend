@@ -103,6 +103,10 @@ const updateCoverImage = async (
   return http.patch("/users/cover-image", coverImage).then((res) => res.data);
 };
 
+const getWatchHistory = async (): Promise<ApiResponse<any>> => {
+  return http.get("/users/history").then((res) => res.data);
+};
+
 const UserAPI = {
   authMe,
   registerUser,
@@ -118,6 +122,7 @@ const UserAPI = {
   updateProfile,
   updateCoverImage,
   updateAvatar,
+  getWatchHistory,
 };
 
 export default UserAPI;

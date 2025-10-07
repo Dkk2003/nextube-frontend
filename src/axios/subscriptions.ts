@@ -10,6 +10,24 @@ const getSubscriber = async (
     .then((res) => res.data);
 };
 
+const toggleSubscription = async (
+  channelId: string
+): Promise<ApiResponse<any>> => {
+  return http
+    .post(`/subscription/toggleSubscription/${channelId}`, {})
+    .then((res) => res.data);
+};
+
+const getSubscribedChannels = async (
+  subscriberId: string
+): Promise<ApiResponse<SubscriptionType[]>> => {
+  return http
+    .get(`/subscription/getSubscribedChannels/${subscriberId}`)
+    .then((res) => res.data);
+};
+
 export const SubscriptionAPI = {
   getSubscriber,
+  toggleSubscription,
+  getSubscribedChannels,
 };
